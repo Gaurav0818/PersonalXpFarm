@@ -7,10 +7,13 @@ public class Ik_Set_Parameters : MonoBehaviour
 {
     public float x;
     public float y;
-
+    
+    [Range(0,4)]
     public float xMinMax = 3;
-    public float yMinMax = 2;
-    public float speed = 5;
+    [Range(0,2)]
+    public float yMinMax = 1.5f;
+    [Range(0,5)]
+    public float speed = 3;
     
 
     private Vector3 defaultPosition;

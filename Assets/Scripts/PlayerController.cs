@@ -1,7 +1,16 @@
 using UnityEngine;
+using UnityEngine.Animations.Rigging;
 
 public class PlayerController : MonoBehaviour
 {
+    #region - Struct and class -
+    private enum CameraType
+    {
+        ThirdPerson,
+        FirstPerson,
+    }
+    #endregion
+    
     #region - Private Variables -
 
     private Animator animator;                  // Reference to Animator
@@ -22,6 +31,8 @@ public class PlayerController : MonoBehaviour
     private int speedFloat;                     // speed Animator Variable
     private int jumpBool;                       // jump Animator Variable
     private int groundBool;                     // ground Animator Variable
+
+    private CameraType cameraType;
     
     #endregion
 
@@ -37,7 +48,11 @@ public class PlayerController : MonoBehaviour
     public bool isGrounded;
 
     public Ik_Set_Parameters headSphere;
-    public GameObject playerCamera;
+    public GameObject headReference;
+    public GameObject playerCamera3P;
+    public GameObject playerCamera1P;
+
+    public Rig rigRifle;
     
     #endregion
     
@@ -60,43 +75,50 @@ public class PlayerController : MonoBehaviour
         horizontal = Input.GetAxis("Horizontal");
         vertical = Input.GetAxis("Vertical");
 
-     //  // Set Animator Values
-     //  animator.SetFloat(hFloat,horizontal);
-     //  animator.SetFloat(vFloat, vertical);
-     //  
-     //  //Store Ground Value
-     //  isGrounded = CheckGround();
-     //  animator.SetBool(groundBool,isGrounded);
+        Vector2 pcAngle= GetAnglePlayerAndCamera();  
+        SetHeadIkAngle(pcAngle);
+        
+        if (Input.GetKeyDown(KeyCode.Mouse1))
+        {
+            cameraType = CameraType.FirstPerson;
+        }
 
-     //  // Player movement
-     //  sprint = Input.GetKey(KeyCode.LeftShift);
-
-     //  if (!isJumping && Input.GetKeyDown(KeyCode.Space))
-     //      isJumping = true;
-     //  else
-     //      JumpMovement();
-     //  
-     //  SetSpeed();
-
-     //  isMoving = speed > 0.1f;
-
-     //  if (isMoving)
-     //  {
-     //      Rotation();
-     //  }
-     //  
-     //  MoveMovement();
-     Vector2 pcAngle= getAnglePlayerAndCamera();  
-     SetHeadIkAngle(pcAngle);
-
+        if (Input.GetKeyUp(KeyCode.Mouse1))
+        {
+            cameraType = CameraType.ThirdPerson;
+        }
+        SwitchCamera();
+        
     }
 
-    private Vector2 getAnglePlayerAndCamera()
+    void SwitchCamera()
     {
-        Vector3 cForword = playerCamera.transform.forward;
-        Vector3 pForword = transform.forward;
+        if (cameraType == CameraType.FirstPerson)
+        {
+            playerCamera1P.SetActive(true);
+            rigRifle.weight = 1;
 
-        return new Vector2(cForword.x - pForword.x, cForword.y - pForword.y);
+        }
+        else
+        {
+            playerCamera1P.SetActive(false);
+            rigRifle.weight = 0;
+        }
+    }
+    
+    private Vector2 GetAnglePlayerAndCamera()
+    {
+        Vector3 cForword = new Vector3();
+        Vector3 pForword = transform.forward;
+   
+        if (cameraType == CameraType.ThirdPerson)
+            cForword = headReference.transform.position - playerCamera3P.transform.position;
+        else
+            cForword =playerCamera1P.transform.forward;
+
+        Vector2 angle = new Vector2(cForword.x - pForword.x, cForword.y - pForword.y);
+
+        return angle;
 
     }
 
@@ -110,7 +132,6 @@ public class PlayerController : MonoBehaviour
         if (isGrounded)
         {
             animator.SetBool(jumpBool,true);
-            
         }
         else
         {
@@ -170,9 +191,9 @@ public class PlayerController : MonoBehaviour
 
     private void Rotation()
     {
-        Vector3 forward = playerCamera.transform.TransformDirection(Vector3.forward);
-        Vector3 right = playerCamera.transform.TransformDirection(Vector3.right);
-        Vector3 left = playerCamera.transform.TransformDirection(Vector3.left);
+        Vector3 forward = playerCamera3P.transform.TransformDirection(Vector3.forward);
+        Vector3 right = playerCamera3P.transform.TransformDirection(Vector3.right);
+        Vector3 left = playerCamera3P.transform.TransformDirection(Vector3.left);
 
         forward.y = 0.0f;
         forward = forward.normalized;
