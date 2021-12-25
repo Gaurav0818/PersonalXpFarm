@@ -1,6 +1,3 @@
-using System;
-using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 
 public class Ik_Set_Parameters : MonoBehaviour
@@ -8,12 +5,12 @@ public class Ik_Set_Parameters : MonoBehaviour
     public float x;
     public float y;
     
-    [Range(0,4)]
+    [Range(0,10)]
     public float xMinMax = 3;
-    [Range(0,2)]
+    [Range(0,10)]
     public float yMinMax = 1.5f;
-    [Range(0,5)]
-    public float speed = 3;
+    [Range(0,50)]
+    public float speed = 10;
     
 
     private Vector3 defaultPosition;
