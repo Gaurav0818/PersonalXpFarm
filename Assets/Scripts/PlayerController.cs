@@ -1,9 +1,11 @@
 using Cinemachine;
+using Unity.Mathematics;
 using UnityEngine;
 using UnityEngine.Animations.Rigging;
 
 public class PlayerController : MonoBehaviour
 {
+    
     #region - Struct and class -
         private enum CameraType
         {
@@ -26,14 +28,21 @@ public class PlayerController : MonoBehaviour
     
         private bool stopRotate = true;
         private float stopRotateTimer;
+
+        private bool setTo3PWhenChangingTo1P;
+        private Vector3 Camera3PPositionBeforeShift;
+        private float Camera3PTo1Ptimer = 0;
+        private float Camera3PTo1PTime = 0.5f;
         
        // private bool sprint;                         // Boolean to determine whether a player is in sprint mode 
        // private bool isJumping;                     // Boolean to determine whether a player is in jump mode 
        // private bool isMoving;                      // Boolean to determine whether a player is moving
         // private float speed;                        // Moving Speed
         // private int speedDir;                       // For dir of speed 
-    
-    
+
+        private bool jumpPressed;
+        private bool shiftPressed; 
+        
         private bool fovChange;             // To Change Fov (3rd Person)
         private float minFov = 60;                  // min Fov (3rd Person)
         private float fov = 60;
@@ -46,6 +55,8 @@ public class PlayerController : MonoBehaviour
     
         private int dirInt;
         private int runBool;
+        
+        
         
         private CameraType cameraType;
     
@@ -93,14 +104,16 @@ public class PlayerController : MonoBehaviour
     
         private void Update()
         {
+            jumpPressed = false;
+            
             horizontal = Input.GetAxis("Horizontal");
             vertical = Input.GetAxis("Vertical");
-    
-            cameraType = Input.GetKey(KeyCode.Mouse1) ? CameraType.FirstPerson 
-                : CameraType.ThirdPerson ;
-    
+
             animator.SetInteger(dirInt, vertical < 0 ? -1 : 1);
-    
+
+            jumpPressed = Input.GetKeyDown(KeyCode.Space);
+
+            
             Rotation();
     
             SwitchCamera();
@@ -116,9 +129,13 @@ public class PlayerController : MonoBehaviour
     
     
     #region - Switch FPS/TPS -
+    
 
         private void SwitchCamera()
         {
+            cameraType = Input.GetKey(KeyCode.Mouse1) ? SetCameraTo1P() 
+                                                      : SetCameraTo3P();
+            
             if (cameraType == CameraType.FirstPerson)
             {
                 playerCamera1P.SetActive(true);
@@ -132,6 +149,22 @@ public class PlayerController : MonoBehaviour
             }
         }
 
+        private CameraType SetCameraTo1P()
+        {
+            if (cameraType == CameraType.ThirdPerson)
+            {
+                Camera3PPositionBeforeShift = playerCamera3P.transform.forward;
+                setTo3PWhenChangingTo1P = true;
+                Debug.Log(cameraType);
+            }
+            return CameraType.FirstPerson;
+        }
+
+        private CameraType SetCameraTo3P()
+        {
+            return CameraType.ThirdPerson;
+        }
+
     #endregion
 
     
@@ -139,11 +172,13 @@ public class PlayerController : MonoBehaviour
 
         private void Rotation()
         { 
+            animator.SetBool(runBool, shiftPressed);
+            
             if(vertical !=0 ) 
                 if (cameraType == CameraType.ThirdPerson)
                 {
-                    animator.SetBool(runBool, Input.GetKey(KeyCode.LeftShift));
-                   
+                    shiftPressed = Input.GetKey(KeyCode.LeftShift);
+
                     if (stopRotate)
                     {
                         stopRotateTimer += Time.deltaTime;
@@ -157,16 +192,44 @@ public class PlayerController : MonoBehaviour
                     if(!Input.GetKey(KeyCode.LeftAlt))
                         Rotation3dPerson();
                 }
+
+            if (cameraType == CameraType.FirstPerson)
+            {
+                shiftPressed = false;
+                
+                if (setTo3PWhenChangingTo1P)
+                {
+                    if (Camera3PTo1Ptimer < 1)
+                    {
+                        Camera3PTo1Ptimer += Time.deltaTime;
+                    }
+                    else
+                    {
+                        setTo3PWhenChangingTo1P = false;
+                        Camera3PTo1Ptimer = 0;
+                    }
+                    
+                    Rotation3PTo1P();
+                }
                 else
                 {
                     stopRotate = true;
                     stopRotateTimer = 0;
+                
                     
-                    animator.SetBool(runBool, false);
                     Rotation1stPerson();
                 }
+            }
         }
-    
+
+        private void Rotation3PTo1P()
+        {
+            Vector3 cameraRef = Camera3PPositionBeforeShift;
+            Vector3 dir = new Vector3( cameraRef.x, 0, cameraRef.z );
+
+            transform.rotation= Quaternion.Slerp(transform.rotation,Quaternion.LookRotation(dir), 0.5f);
+        }
+
         private void Rotation1stPerson()
         {
             
@@ -179,6 +242,8 @@ public class PlayerController : MonoBehaviour
             Vector3 dir = new Vector3(headRef.x - cameraRef.x, 0, headRef.z - cameraRef.z);
     
             //float angle = Mathf.Abs(Vector3.Angle(playerCamera3P.transform.forward, transform.forward));
+            if (shiftPressed)
+                turnSpeed = turnSpeed * 3; 
             
             transform.rotation= Quaternion.Slerp(transform.rotation,Quaternion.LookRotation(dir),turnSpeed * Time.deltaTime);
         }
@@ -204,18 +269,30 @@ public class PlayerController : MonoBehaviour
                 moveDir = moveDir + playerCamera1P.transform.right * horizontal;
                 moveDir.Normalize();
             }
-
+            
+            if(shiftPressed)
+                moveDir *= runSpeed;
+            else
+                moveDir *= walkSpeed;
+            
             moveDir.y = Jump();
-            moveDir *= runSpeed * Time.deltaTime;
+            moveDir *= Time.deltaTime;
             charController.Move(moveDir);
         }
 
         private float Jump()
         {
-            if (Grounded())
-                return 0;
-            else
+            if (!Grounded())
                 return CalculateVerticalVelocity();
+            else if (jumpPressed)
+                return ApplyJump();
+            else
+                return 0;
+        }
+
+        private float ApplyJump()
+        {
+            return 0;
         }
 
         private float CalculateVerticalVelocity()
