@@ -109,7 +109,7 @@ public class PlayerController : MonoBehaviour
             horizontal = Input.GetAxis("Horizontal");
             vertical = Input.GetAxis("Vertical");
 
-            animator.SetInteger(dirInt, vertical < 0 ? -1 : 1);
+            animator.SetInteger(dirInt, vertical < 0 ? -1 : (vertical==0 ? 0 : 1));
 
             jumpPressed = Input.GetKeyDown(KeyCode.Space);
 
