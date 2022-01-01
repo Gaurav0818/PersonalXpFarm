@@ -149,7 +149,7 @@ public class PlayerController : MonoBehaviour
             Move();
         }
 
-        if(moveHead)
+       // if(moveHead)
             Head();
 
         SetFov();
