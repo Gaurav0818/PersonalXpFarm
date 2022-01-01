@@ -11,18 +11,20 @@ public class MeleeAttackAnimation : StateMachineBehaviour
         playerController = FindObjectOfType<PlayerController>();
         playerController.attack = false;
         playerController.moveHead = false;
+        
     }
 
     // OnStateUpdate is called on each Update frame between OnStateEnter and OnStateExit callbacks
     override public void OnStateUpdate(Animator animator, AnimatorStateInfo stateInfo, int layerIndex)
     {
-        
+        playerController.holdMeleeWeapon = true;
     }
 
     // OnStateExit is called when a transition ends and the state machine finishes evaluating this state
     override public void OnStateExit(Animator animator, AnimatorStateInfo stateInfo, int layerIndex)
     {
         playerController.moveHead = false;
+        playerController.holdMeleeWeapon = false;
     }
 
 }

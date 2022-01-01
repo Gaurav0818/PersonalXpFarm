@@ -14,10 +14,15 @@ public class PlayerController : MonoBehaviour
         FirstPerson
     }
 
-    #endregion
+#endregion
 
 
 #region - Public Variables -
+
+    [Header("-------  Weapon Related  -------")]
+    public GameObject meleeAxe;
+    public GameObject gunAssult;
+    public bool holdMeleeWeapon = false;
 
     [Header("-------  Camera Related  -------")]
     public CameraType cameraType;
@@ -118,39 +123,14 @@ public class PlayerController : MonoBehaviour
 
         animator.SetBool(BoostRunBool, runBoostMode ? true : false);
         
-        Rotation();
+        
 
-        if(cameraType == CameraType.ThirdPerson)
-        {
-
-            canShoot = false;
-            shiftPressed = Input.GetKey(KeyCode.LeftShift);
-            HandleRunBoost();
-            
-            if (runBoostMode)
-            {
-                RunBoostMove();
-            }
-            else
-            {
-                SwitchCamera();
-                Move();
-                PlayerBodyRotation();
-            }
-
-            if (Input.GetKeyDown(KeyCode.Mouse0))
-                attack = true;
-        }
+        if (cameraType == CameraType.ThirdPerson)
+            Tps();
         else
-        {
-            canShoot = true;
-            SwitchCamera();
-            HandleDash();
-            Move();
-        }
+            Fps();
 
-       // if(moveHead)
-            Head();
+        Head();
 
         SetFov();
 
@@ -203,6 +183,17 @@ public class PlayerController : MonoBehaviour
 
 #region - FPS -
 
+    private void Fps()
+    {
+        DisableWeapon(meleeAxe);
+        EnableWeapon(gunAssult);
+        canShoot = true;
+        SwitchCamera();
+        HandleDash();
+        Move();
+        Rotation();
+    }
+
     private void UpdateFps()
     {
         playerBodyFpsCameraScript.enabled = true;
@@ -215,6 +206,39 @@ public class PlayerController : MonoBehaviour
     
 
 #region - TPS -
+
+    private void Tps()
+    {
+        canShoot = false;
+        shiftPressed = Input.GetKey(KeyCode.LeftShift);
+        HandleRunBoost();
+
+        if (runBoostMode)
+        {
+            RunBoostMove();
+        }
+        else
+        {
+            SwitchCamera();
+            Move();
+            PlayerBodyRotation();
+        }
+
+        if (Input.GetKeyDown(KeyCode.Mouse0))
+            attack = true;
+
+        if (!holdMeleeWeapon)
+        {
+            DisableWeapon(gunAssult);
+            DisableWeapon(meleeAxe);
+            Rotation();
+        }
+        else
+        {
+            EnableWeapon(meleeAxe);
+            DisableWeapon(gunAssult);
+        }
+    }
 
     private void UpdateTps()
     {
@@ -544,7 +568,22 @@ public class PlayerController : MonoBehaviour
     {
         headSphere.SetParameters(pcAngle.x,pcAngle.y);
     }
-    
-#endregion
-    
+
+    #endregion
+
+
+    #region - Weapon -
+
+    private void DisableWeapon(GameObject weapon)
+    {
+        weapon.SetActive(false);
+    }
+    private void EnableWeapon(GameObject weapon)
+    {
+        weapon.SetActive(true);
+    }
+
+
+    #endregion
+
 }
