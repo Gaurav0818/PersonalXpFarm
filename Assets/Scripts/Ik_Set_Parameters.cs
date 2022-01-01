@@ -11,20 +11,12 @@ public class Ik_Set_Parameters : MonoBehaviour
     public float yMinMax = 1.5f;
     [Range(0,50)]
     public float speed = 10;
-    
 
-    private Vector3 defaultPosition;
-
-    private void Start()
-    {
-        defaultPosition.x = 0.0f;
-        defaultPosition.y = 0.0f;
-        defaultPosition.z = 2.5f;
-    }
+    public GameObject CenterPoint;
 
     private void Update()
     {
-        //defaultPosition.z = transform.position.z;
+        Vector3 defaultPosition = CenterPoint.transform.localPosition;
         transform.localPosition = Vector3.Lerp(transform.localPosition, defaultPosition + new Vector3(x, y, 0),speed*Time.deltaTime);
     }
 
