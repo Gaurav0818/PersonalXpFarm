@@ -21,6 +21,7 @@ public class PlayerController : MonoBehaviour
 
     [Header("-------  Weapon Related  -------")]
     public GameObject meleeAxe;
+    public GameObject meleeAxeComponent;
     public GameObject gunAssult;
     public bool holdMeleeWeapon = false;
 
@@ -216,6 +217,7 @@ public class PlayerController : MonoBehaviour
         if (runBoostMode)
         {
             RunBoostMove();
+            attack = false;
         }
         else
         {
@@ -237,6 +239,7 @@ public class PlayerController : MonoBehaviour
         {
             EnableWeapon(meleeAxe);
             DisableWeapon(gunAssult);
+            MeleeSound();
         }
     }
 
@@ -572,7 +575,7 @@ public class PlayerController : MonoBehaviour
     #endregion
 
 
-    #region - Weapon -
+#region - Weapon -
 
     private void DisableWeapon(GameObject weapon)
     {
@@ -583,7 +586,21 @@ public class PlayerController : MonoBehaviour
         weapon.SetActive(true);
     }
 
+    private void MeleeSound()
+    {
+        Vector3 wForword = meleeAxeComponent.transform.forward;
+        Vector3 cForword = charController.transform.forward;
+        wForword.Normalize();
+        cForword.Normalize();
 
-    #endregion
+        if ( (Mathf.Round(wForword.x * 100f) / 100f) == -0.3 )
+        {
+
+        }
+           
+    }
+
+
+#endregion
 
 }
