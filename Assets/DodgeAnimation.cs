@@ -8,15 +8,16 @@ public class DodgeAnimation : StateMachineBehaviour
     override public void OnStateEnter(Animator animator, AnimatorStateInfo stateInfo, int layerIndex)
     {
         controller = FindObjectOfType<PlayerController>();
+        controller.dodge = false;
     }
 
     override public void OnStateUpdate(Animator animator, AnimatorStateInfo stateInfo, int layerIndex)
     {
-        controller.dodge = true;
+        controller.dodgeMode = true;
     }
 
     override public void OnStateExit(Animator animator, AnimatorStateInfo stateInfo, int layerIndex)
     {
-        controller.dodge = false;
+        controller.dodgeMode = false;
     }
 }
