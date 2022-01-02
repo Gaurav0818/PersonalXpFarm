@@ -23,7 +23,6 @@ public class PlayerController : MonoBehaviour
     public GameObject meleeAxe;
     public GameObject meleeAxeComponent;
     public GameObject gunAssult;
-    public bool holdMeleeWeapon = false;
 
     [Header("-------  Camera Related  -------")]
     public CameraType cameraType;
@@ -43,7 +42,6 @@ public class PlayerController : MonoBehaviour
     [Header("-------  Values  -------")]
     public bool isDashing;
     public bool canShoot;
-    public float speed = 0;
     [Range(0, 30)]
     public float dashSpeed = 20;
     [Range(0, 20)]
@@ -55,13 +53,21 @@ public class PlayerController : MonoBehaviour
     [Range(10, 100)]
     public float runFovChangeSpeed = 20;
 
+    [Header("---  Values Controlled by Animation  ---")]
+    [Range(0, 40)]
+    public float speed = 0;
+    public bool attack;
+    public bool holdMeleeWeapon = false;
+    public bool dodge;
+    public bool dodgeMode = false;
+
+
     [Header("-------  Extra  -------")]
     public GameObject capsule;
     public GameObject playerBody;
     public Animator animator;
     public CharacterController charController;
     public Vector3 moveDir;
-    public bool attack;
     public bool moveHead;
 
 #endregion
@@ -90,6 +96,7 @@ public class PlayerController : MonoBehaviour
     private int runBool;
     private int BoostRunBool;
     private int AttackBool;
+    private int DodgeBool;
 
     private bool modeCameraIsFps;
     private bool runBoostMode;
@@ -109,6 +116,7 @@ public class PlayerController : MonoBehaviour
         runBool = Animator.StringToHash("Run");
         BoostRunBool = Animator.StringToHash("BoostRun");
         AttackBool = Animator.StringToHash("Attack");
+        DodgeBool = Animator.StringToHash("Dodge");
 
         moveHead = true;
     }
@@ -135,6 +143,7 @@ public class PlayerController : MonoBehaviour
 
         SetFov();
 
+        animator.SetBool(DodgeBool, dodge);
         animator.SetBool(AttackBool, attack);
 
     }
@@ -210,6 +219,7 @@ public class PlayerController : MonoBehaviour
 
     private void Tps()
     {
+        dodge = false;
         canShoot = false;
         shiftPressed = Input.GetKey(KeyCode.LeftShift);
         HandleRunBoost();
@@ -218,9 +228,11 @@ public class PlayerController : MonoBehaviour
         {
             RunBoostMove();
             attack = false;
+            dodge = false;
         }
         else
         {
+            HandleDodge();
             SwitchCamera();
             Move();
             PlayerBodyRotation();
@@ -229,17 +241,27 @@ public class PlayerController : MonoBehaviour
         if (Input.GetKeyDown(KeyCode.Mouse0))
             attack = true;
 
-        if (!holdMeleeWeapon)
+        if (!dodgeMode)
         {
-            DisableWeapon(gunAssult);
-            DisableWeapon(meleeAxe);
-            Rotation();
+            attack = false;
         }
         else
+        {
+            
+        }
+
+        if (holdMeleeWeapon)
         {
             EnableWeapon(meleeAxe);
             DisableWeapon(gunAssult);
             MeleeSound();
+            dodge = false;
+        }
+        else
+        {
+            DisableWeapon(gunAssult);
+            DisableWeapon(meleeAxe);
+            Rotation();
         }
     }
 
@@ -440,7 +462,7 @@ public class PlayerController : MonoBehaviour
 
     void HandleRunBoost()
     {
-        bool isTryingToRunBoost = Input.GetKeyDown(KeyCode.Space);
+        bool isTryingToRunBoost = Input.GetKeyDown(KeyCode.X);
         if (isTryingToRunBoost)
         {
             runBoostMode = true;
@@ -467,6 +489,36 @@ public class PlayerController : MonoBehaviour
         charController.Move(moveDir);
         moveDir.y = 0;
         playerBody.transform.rotation = Quaternion.Slerp(playerBody.transform.rotation, Quaternion.LookRotation(moveDir), 1000000);
+    }
+
+    #endregion
+
+
+#region - Dodge -
+
+    void HandleDodge()
+    {
+
+        bool isTryingToDodge = Input.GetKeyDown(KeyCode.Space);
+
+        if(isTryingToDodge && !dodgeMode)
+        {
+            dodge = true;
+        }
+       //if (dodgeMode)
+       //{
+       //    
+       //    if (speed.Equals(0))
+       //    {
+       //        charController.Move(transform.forward * 30f * Time.deltaTime);
+       //    }
+       //    else
+       //    {
+       //        charController.Move(moveDir.normalized * 100f * Time.deltaTime);
+       //    }
+       //
+       //}
+
     }
 
 #endregion

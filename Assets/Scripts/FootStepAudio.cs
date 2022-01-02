@@ -7,7 +7,8 @@ public class FootStepAudio : MonoBehaviour
     public AudioSource footStepAudio;
     private void OnTriggerEnter(Collider other)
     {
-        Debug.Log("FootStep");
+        footStepAudio.pitch = Random.Range(0.8f, 1.1f);
+        footStepAudio.volume = Random.Range(0.4f, 0.8f);
         footStepAudio.Play();
     }
 }
