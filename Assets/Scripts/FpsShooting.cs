@@ -7,6 +7,7 @@ public class FpsShooting : MonoBehaviour
     public GameObject bulletPrefab;
     public PlayerController player; 
     public Transform bulletLocation;
+    public ParticleSystem MuzzleFlash;
     public float shootPower = 100f;
 
     void start()
@@ -20,8 +21,9 @@ public class FpsShooting : MonoBehaviour
         
         if (Input.GetKeyDown(KeyCode.Mouse0) && player.canShoot)
         {
-            Instantiate(bulletPrefab, bulletLocation.position, bulletLocation.rotation).
-                    GetComponent<Rigidbody>().AddRelativeForce(Vector3.forward * shootPower);
+            MuzzleFlash.Play();
+           //Instantiate(bulletPrefab, bulletLocation.position, bulletLocation.rotation).
+           //        GetComponent<Rigidbody>().AddRelativeForce(Vector3.forward * shootPower);
         }
     }
 }
