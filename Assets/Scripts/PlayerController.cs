@@ -505,19 +505,7 @@ public class PlayerController : MonoBehaviour
         {
             dodge = true;
         }
-       //if (dodgeMode)
-       //{
-       //    
-       //    if (speed.Equals(0))
-       //    {
-       //        charController.Move(transform.forward * 30f * Time.deltaTime);
-       //    }
-       //    else
-       //    {
-       //        charController.Move(moveDir.normalized * 100f * Time.deltaTime);
-       //    }
-       //
-       //}
+       
 
     }
 
