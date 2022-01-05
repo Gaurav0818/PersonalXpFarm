@@ -42,10 +42,10 @@ public class EnemySpider : MonoBehaviour
         wanderTarget.Normalize();
         wanderTarget *= wanderRadius;
 
-        Vector3 targetLocal = wanderTarget + new Vector3(0, 0, wanderDistance);
+        //Vector3 targetLocal = wanderTarget + new Vector3(0, 0, wanderDistance);
         //Vector3 targetWorld = this.gameObject.transform.InverseTransformVector(targetLocal);
         
-        agent.SetDestination( targetLocal);
+        agent.SetDestination( targetPlayer.transform.position);
     }
 
 
